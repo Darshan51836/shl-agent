@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHL Assessment Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080d1a;--surface:#0f1628;--surface2:#161f38;
+  --border:rgba(99,130,255,0.15);--border2:rgba(99,130,255,0.3);
+  --accent:#4f7cff;--accent2:#7b9fff;--amber:#f0a500;
+  --text:#e8eaf6;--muted:#8892b0;--success:#00d68f;--card:#111827;
+}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+header{padding:1rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(8,13,26,0.97);position:sticky;top:0;z-index:100}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,#4f7cff,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:#fff;letter-spacing:1px;flex-shrink:0}
+.logo-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500;border:1px solid}
+.badge-blue{background:rgba(79,124,255,.1);border-color:rgba(79,124,255,.3);color:var(--accent2)}
+.badge-amber{background:rgba(240,165,0,.1);border-color:rgba(240,165,0,.3);color:var(--amber)}
+.sdot{width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* LAYOUT */
+main{flex:1;display:grid;grid-template-columns:1fr 420px;height:calc(100vh - 61px);overflow:hidden}
+
+/* CHAT PANEL */
+.chat-panel{display:flex;flex-direction:column;border-right:1px solid var(--border)}
+.section-head{padding:.9rem 1.6rem;border-bottom:1px solid var(--border);background:var(--surface)}
+.section-head h2{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.section-head p{font-size:11.5px;color:rgba(136,146,176,.5)}
+.messages{flex:1;overflow-y:auto;padding:1.25rem 1.6rem;display:flex;flex-direction:column;gap:.85rem;scroll-behavior:smooth}
+.messages::-webkit-scrollbar{width:3px}
+.messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.msg{max-width:86%;animation:up .25s ease}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg-u{align-self:flex-end}.msg-b{align-self:flex-start}
+.msg-lbl{font-size:10px;color:var(--muted);margin-bottom:3px;font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.msg-u .msg-lbl{text-align:right}
+.bubble{padding:.75rem 1rem;border-radius:14px;font-size:13.5px;line-height:1.6}
+.msg-u .bubble{background:var(--accent);color:#fff;border-bottom-right-radius:3px}
+.msg-b .bubble{background:var(--surface2);border:1px solid var(--border);border-bottom-left-radius:3px}
+.typing .bubble{display:flex;gap:5px;align-items:center;padding:.85rem 1rem}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite ease-in-out}
+.dot:nth-child(2){animation-delay:.15s}.dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.chip{padding:5px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;font-size:11.5px;color:var(--muted);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--accent);color:var(--accent2);background:rgba(79,124,255,.08)}
+
+/* INPUT */
+.input-area{padding:.9rem 1.6rem;border-top:1px solid var(--border);background:var(--surface);display:flex;gap:8px;align-items:flex-end}
+.input-wrap{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:13px;display:flex;align-items:center;padding:0 11px;transition:border-color .2s}
+.input-wrap:focus-within{border-color:var(--accent)}
+#inp{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Outfit',sans-serif;font-size:13.5px;padding:10px 0;resize:none;max-height:100px;line-height:1.5}
+#inp::placeholder{color:var(--muted)}
+#sbtn{width:38px;height:38px;border-radius:10px;background:var(--accent);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+#sbtn:hover{background:var(--accent2);transform:scale(1.05)}
+#sbtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#sbtn svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* RIGHT PANEL */
+.right-panel{display:flex;flex-direction:column;background:var(--surface);overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--border)}
+.tab{flex:1;padding:.7rem .5rem;font-size:11.5px;font-weight:500;color:var(--muted);cursor:pointer;text-align:center;letter-spacing:.5px;text-transform:uppercase;border:none;border-bottom:2px solid transparent;background:none;transition:all .2s;font-family:'Outfit',sans-serif}
+.tab.on{color:var(--accent2);border-bottom-color:var(--accent)}
+.tab:hover:not(.on){color:var(--text)}
+.pane{display:none;flex:1;flex-direction:column;overflow:hidden}
+.pane.on{display:flex}
+
+/* RECS PANE */
+.recs-list{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:8px}
+.recs-list::-webkit-scrollbar{width:3px}
+.recs-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.rcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.85rem .95rem;animation:up .25s ease;transition:all .2s;text-decoration:none;display:block;color:inherit}
+.rcard:hover{border-color:var(--border2);transform:translateY(-1px);background:var(--surface2)}
+.rcard.sel{border-color:var(--amber)!important;background:rgba(240,165,0,.04)}
+.rname{font-size:13px;font-weight:600;margin-bottom:6px;line-height:1.3}
+.rtypes{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:5px}
+.tb{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:500;padding:2px 6px;border-radius:4px;border:1px solid}
+.tK{background:rgba(79,124,255,.15);color:#7b9fff;border-color:rgba(79,124,255,.25)}
+.tP{background:rgba(139,92,246,.15);color:#a78bfa;border-color:rgba(139,92,246,.25)}
+.tA{background:rgba(0,214,143,.12);color:#34d399;border-color:rgba(0,214,143,.2)}
+.tS{background:rgba(240,165,0,.12);color:#fbbf24;border-color:rgba(240,165,0,.2)}
+.tC{background:rgba(236,72,153,.12);color:#f472b6;border-color:rgba(236,72,153,.2)}
+.tB{background:rgba(234,179,8,.12);color:#eab308;border-color:rgba(234,179,8,.2)}
+.tE{background:rgba(20,184,166,.12);color:#2dd4bf;border-color:rgba(20,184,166,.2)}
+.tD{background:rgba(249,115,22,.12);color:#fb923c;border-color:rgba(249,115,22,.2)}
+.rlink{font-size:10px;color:var(--accent2);margin-top:5px;display:flex;align-items:center;gap:4px;font-weight:500}
+.sel-hint{font-size:10px;color:var(--amber);margin-top:4px;display:none}
+.rcard:hover .sel-hint{display:block}
+
+/* TOOLBAR */
+.toolbar{padding:.6rem 1rem;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.tbtn{padding:4px 11px;border-radius:7px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:all .2s;display:flex;align-items:center;gap:4px;font-family:'Outfit',sans-serif}
+.tbtn:hover{border-color:var(--accent);color:var(--accent2)}
+.tbtn.red:hover{border-color:#ef4444;color:#f87171}
+.tbtn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.legend{padding:.55rem 1rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:6px}
+.li{font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:3px}
+.ld{width:5px;height:5px;border-radius:1px}
+
+/* COMPARE PANE */
+.compare-pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cp-head{padding:.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.cp-head p{font-size:12px;color:var(--muted)}
+.cp-body{flex:1;overflow:auto;padding:1rem}
+.cp-body::-webkit-scrollbar{width:3px;height:3px}
+.cp-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{text-align:left;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);white-space:nowrap}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;line-height:1.4}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(79,124,255,.04)}
+.c-name{font-weight:500;font-size:12px}
+.c-link{color:var(--accent2);text-decoration:none;font-size:11px}
+.c-link:hover{text-decoration:underline}
+
+/* BRIEF PANE */
+.brief-body{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:10px}
+.brief-body::-webkit-scrollbar{width:3px}
+.brief-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.bcard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem}
+.bcard h3{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.brow{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border);gap:8px}
+.brow:last-child{border-bottom:none}
+.bk{color:var(--muted);font-size:11.5px;flex-shrink:0}
+.bv{color:var(--text);font-size:11.5px;font-weight:500;text-align:right;word-break:break-word}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px}
+.stat{background:var(--surface2);border-radius:9px;padding:.7rem;text-align:center}
+.stat-n{font-size:22px;font-weight:600;color:var(--accent2);font-family:'Bebas Neue',sans-serif;letter-spacing:1px}
+.stat-l{font-size:10px;color:var(--muted);margin-top:2px}
+.prog-bar{height:4px;background:var(--surface2);border-radius:2px;margin-top:8px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease}
+
+/* EMPTY / TOAST */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:9px;color:var(--muted);text-align:center;padding:2rem}
+.eicon{width:50px;height:50px;background:var(--surface2);border:1px solid var(--border);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:4px}
+.empty h3{font-size:13px;font-weight:500;color:var(--text)}
+.empty p{font-size:11.5px;line-height:1.6}
+.rcnt{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;background:var(--accent);color:#fff;font-size:9.5px;font-weight:600;border-radius:9px;padding:0 5px;margin-left:4px}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:.55rem 1.2rem;border-radius:9px;font-size:12.5px;opacity:0;transition:all .3s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="logo-icon">SHL</div>
+    <div style="display:flex;flex-direction:column;line-height:1.15">
+      <span class="logo-title">Assessment Intelligence</span>
+      <span class="logo-sub">RAG · LLaMA 3.1 · FAISS · 377 Assessments</span>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <span class="badge badge-blue">RAG</span>
+    <span class="badge badge-amber">LLaMA 3.1</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--success);font-weight:500">
+      <div class="sdot"></div>API LIVE
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ── CHAT ── -->
+  <div class="chat-panel">
+    <div class="section-head">
+      <h2>Conversation</h2>
+      <p>Describe a role or development need — the agent will clarify and recommend.</p>
+    </div>
+    <div class="messages" id="msgs">
+      <div class="msg msg-b">
+        <div class="msg-lbl">SHL Advisor</div>
+        <div class="bubble">
+          Hello! I'm your SHL assessment advisor. Describe the role you're hiring for or the development need, and I'll recommend the best assessments from the catalog.
+          <div class="chips" id="chips">
+            <span class="chip" onclick="sendChip(this)">Hire a software developer</span>
+            <span class="chip" onclick="sendChip(this)">Senior leadership selection</span>
+            <span class="chip" onclick="sendChip(this)">Graduate recruitment</span>
+            <span class="chip" onclick="sendChip(this)">Sales team assessment</span>
+            <span class="chip" onclick="sendChip(this)">Compare Java vs Python tests</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea id="inp" placeholder="Describe your hiring or development need…" rows="1"></textarea>
+      </div>
+      <button id="sbtn" onclick="send()" title="Send">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── RIGHT ── -->
+  <div class="right-panel">
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('recs',this)">
+        Recs <span class="rcnt" id="rcnt" style="display:none">0</span>
+      </button>
+      <button class="tab" onclick="switchTab('compare',this)">
+        Compare <span class="rcnt" id="ccnt" style="display:none">0</span>
+      </button>
+      <button class="tab" onclick="switchTab('brief',this)">Brief</button>
+    </div>
+
+    <!-- RECS -->
+    <div class="pane on" id="pane-recs">
+      <div class="recs-list" id="recs-list">
+        <div class="empty" id="empty-recs">
+          <div class="eicon">📊</div>
+          <h3>No recommendations yet</h3>
+          <p>Start a conversation to get tailored assessment recommendations.</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="tbtn" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+        <button class="tbtn" onclick="copyTable()">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Table
+        </button>
+        <button class="tbtn" onclick="sendAllToCompare()">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Compare All
+        </button>
+        <button class="tbtn red" onclick="clearRecs()">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Clear
+        </button>
+      </div>
+      <div class="legend">
+        <span class="li"><span class="ld" style="background:#7b9fff"></span>K=Knowledge</span>
+        <span class="li"><span class="ld" style="background:#a78bfa"></span>P=Personality</span>
+        <span class="li"><span class="ld" style="background:#34d399"></span>A=Ability</span>
+        <span class="li"><span class="ld" style="background:#fbbf24"></span>S=Simulation</span>
+        <span class="li"><span class="ld" style="background:#f472b6"></span>C=Competency</span>
+        <span class="li"><span class="ld" style="background:#fb923c"></span>D=Development</span>
+      </div>
+    </div>
+
+    <!-- COMPARE -->
+    <div class="pane" id="pane-compare">
+      <div class="compare-pane">
+        <div class="cp-head">
+          <p id="cp-hint">Select recommendations to compare.</p>
+          <button class="tbtn red" onclick="clearCompare()">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+            Clear
+          </button>
+        </div>
+        <div class="cp-body" id="cp-body">
+          <div class="empty">
+            <div class="eicon">⚖️</div>
+            <h3>Nothing to compare</h3>
+            <p>Click "Compare All" in the Recs tab, or click individual cards to add them here.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRIEF -->
+    <div class="pane" id="pane-brief">
+      <div class="brief-body" id="brief-body">
+        <div class="empty">
+          <div class="eicon">🧠</div>
+          <h3>Session brief</h3>
+          <p>A live summary of what the agent has learned will appear here as you chat.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = window.location.origin;
+let history = [], allRecs = [], compareSet = [];
+const TYPE_LABELS = {K:'Knowledge & Skills',P:'Personality & Behavior',A:'Ability & Aptitude',S:'Simulation',C:'Competency',B:'Biodata/SJT',E:'Exercise',D:'Development'};
+let brief = {role:'—',level:'—',focus:'—',turns:0,totalRecs:0};
+
+// ── Input ──────────────────────────────────────────────────────────────────
+const inp = document.getElementById('inp');
+inp.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()} });
+inp.addEventListener('input', ()=>{ inp.style.height='auto'; inp.style.height=Math.min(inp.scrollHeight,100)+'px' });
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('pane-'+name).classList.add('on');
+}
+
+function sendChip(el){ inp.value=el.textContent; send(); }
+
+// ── Send message ───────────────────────────────────────────────────────────
+async function send(){
+  const text=inp.value.trim(); if(!text) return;
+  inp.value=''; inp.style.height='auto';
+  document.getElementById('sbtn').disabled=true;
+  addMsg('u',text);
+  history.push({role:'user',content:text});
+  brief.turns++;
+  const t=addTyping();
+  try{
+    const res=await fetch(`${API}/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history})});
+    const d=await res.json();
+    removeTyping(t);
+    addMsg('b',d.reply);
+    history.push({role:'assistant',content:d.reply});
+    if(d.recommendations&&d.recommendations.length>0){
+      addRecs(d.recommendations);
+      updateBrief(text);
+    }
+  }catch(e){
+    removeTyping(t);
+    addMsg('b','⚠ Could not reach the API. Make sure the server is running.');
+  }
+  document.getElementById('sbtn').disabled=false;
+  inp.focus();
+}
+
+// ── Messages ───────────────────────────────────────────────────────────────
+function addMsg(side,text){
+  const msgs=document.getElementById('msgs');
+  const d=document.createElement('div');
+  d.className=`msg msg-${side}`;
+  const lbl=document.createElement('div');
+  lbl.className='msg-lbl';
+  lbl.textContent=side==='u'?'You':'SHL Advisor';
+  const b=document.createElement('div');
+  b.className='bubble';
+  b.textContent=text;
+  d.appendChild(lbl); d.appendChild(b);
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function addTyping(){
+  const msgs=document.getElementById('msgs');
+  const d=document.createElement('div');
+  d.className='msg msg-b typing';
+  d.innerHTML='<div class="msg-lbl">SHL Advisor</div><div class="bubble"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+  msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+  return d;
+}
+function removeTyping(el){el.remove()}
+
+// ── Recommendations ────────────────────────────────────────────────────────
+function addRecs(recs){
+  const list=document.getElementById('recs-list');
+  document.getElementById('empty-recs')?.remove();
+  recs.forEach(rec=>{
+    allRecs.push(rec);
+    const types=(rec.test_type||'').split(',').map(t=>t.trim()).filter(Boolean);
+    const card=document.createElement('div');
+    card.className='rcard';
+    card.dataset.idx=allRecs.length-1;
+    card.innerHTML=`
+      <div class="rname">${esc(rec.name)}</div>
+      <div class="rtypes">${types.map(t=>`<span class="tb t${t}">${t}</span>`).join('')}</div>
+      <div style="font-size:10px;color:var(--muted)">${types.map(t=>TYPE_LABELS[t]||t).join(', ')}</div>
+      <a href="${esc(rec.url)}" target="_blank" class="rlink" onclick="e=>e.stopPropagation()">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        View on SHL Catalog
+      </a>
+      <div class="sel-hint">+ Click to add to Compare</div>
+    `;
+    card.addEventListener('click',e=>{ if(e.target.tagName==='A') return; toggleCompare(rec,card); });
+    list.appendChild(card);
+    list.scrollTop=list.scrollHeight;
+  });
+  brief.totalRecs=allRecs.length;
+  const cnt=document.getElementById('rcnt');
+  cnt.style.display='inline-flex'; cnt.textContent=allRecs.length;
+}
+
+// ── Compare ────────────────────────────────────────────────────────────────
+function toggleCompare(rec,card){
+  const idx=compareSet.findIndex(r=>r.name===rec.name);
+  if(idx>=0){ compareSet.splice(idx,1); card.classList.remove('sel'); }
+  else { compareSet.push(rec); card.classList.add('sel'); }
+  renderCompare();
+}
+function sendAllToCompare(){
+  compareSet=[...allRecs];
+  document.querySelectorAll('.rcard').forEach(c=>c.classList.add('sel'));
+  renderCompare();
+  switchTab('compare',document.querySelectorAll('.tab')[1]);
+  toast(`${compareSet.length} assessments sent to Compare`);
+}
+function renderCompare(){
+  const cnt=document.getElementById('ccnt');
+  cnt.style.display=compareSet.length?'inline-flex':'none';
+  cnt.textContent=compareSet.length;
+  document.getElementById('cp-hint').textContent=compareSet.length
+    ?`Comparing ${compareSet.length} assessment${compareSet.length>1?'s':''}`
+    :'Select recommendations to compare.';
+  const body=document.getElementById('cp-body');
+  if(!compareSet.length){
+    body.innerHTML='<div class="empty"><div class="eicon">⚖️</div><h3>Nothing to compare</h3><p>Click "Compare All" in the Recs tab, or click individual cards.</p></div>';
+    return;
+  }
+  let html=`<table><thead><tr>
+    <th>#</th><th>Assessment Name</th><th>Type</th><th>Link</th>
+  </tr></thead><tbody>`;
+  compareSet.forEach((r,i)=>{
+    const types=(r.test_type||'').split(',').map(t=>t.trim()).filter(Boolean);
+    html+=`<tr>
+      <td style="color:var(--muted)">${i+1}</td>
+      <td><span class="c-name">${esc(r.name)}</span></td>
+      <td>${types.map(t=>`<span class="tb t${t}">${t}</span>`).join(' ')}</td>
+      <td><a href="${esc(r.url)}" target="_blank" class="c-link">View ↗</a></td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  body.innerHTML=html;
+}
+function clearCompare(){
+  compareSet=[];
+  document.querySelectorAll('.rcard').forEach(c=>c.classList.remove('sel'));
+  renderCompare();
+}
+
+// ── Session Brief ──────────────────────────────────────────────────────────
+function updateBrief(lastMsg){
+  const lower=lastMsg.toLowerCase();
+  if(lower.includes('senior')||lower.includes('director')||lower.includes('executive')) brief.level='Senior / Executive';
+  else if(lower.includes('graduate')||lower.includes('entry')) brief.level='Graduate / Entry Level';
+  else if(lower.includes('mid')||lower.includes('manager')) brief.level='Mid-Level / Manager';
+  if(lower.includes('java')||lower.includes('python')||lower.includes('developer')||lower.includes('engineer')) brief.role='Software Developer';
+  else if(lower.includes('sales')) brief.role='Sales Professional';
+  else if(lower.includes('leadership')||lower.includes('leader')) brief.role='Leadership Role';
+  else if(lower.includes('graduate')) brief.role='Graduate Hire';
+
+  const progress=Math.min(100,Math.round((brief.totalRecs/10)*100));
+  document.getElementById('brief-body').innerHTML=`
+    <div class="bcard">
+      <h3>📋 Session Overview</h3>
+      <div class="brow"><span class="bk">Role detected</span><span class="bv">${brief.role}</span></div>
+      <div class="brow"><span class="bk">Level detected</span><span class="bv">${brief.level}</span></div>
+      <div class="brow"><span class="bk">Conversation turns</span><span class="bv">${brief.turns}</span></div>
+      <div class="brow"><span class="bk">Recommendations</span><span class="bv">${brief.totalRecs} assessments</span></div>
+    </div>
+    <div class="bcard">
+      <h3>📊 Session Stats</h3>
+      <div class="stat-grid">
+        <div class="stat"><div class="stat-n">${brief.turns}</div><div class="stat-l">Turns</div></div>
+        <div class="stat"><div class="stat-n">${brief.totalRecs}</div><div class="stat-l">Recs Found</div></div>
+        <div class="stat"><div class="stat-n">${compareSet.length}</div><div class="stat-l">In Compare</div></div>
+        <div class="stat"><div class="stat-n">${Math.round((brief.totalRecs/377)*100)}%</div><div class="stat-l">Catalog Hit</div></div>
+      </div>
+      <div style="margin-top:12px;font-size:11px;color:var(--muted)">Recommendation coverage</div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${progress}%"></div></div>
+    </div>
+    <div class="bcard">
+      <h3>💡 Quick Actions</h3>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-top:4px">
+        <button class="tbtn" style="width:100%;justify-content:center" onclick="sendAllToCompare();switchTab('compare',document.querySelectorAll('.tab')[1])">Compare all ${brief.totalRecs} recommendations</button>
+        <button class="tbtn" style="width:100%;justify-content:center" onclick="copyTable()">Copy as markdown table</button>
+        <button class="tbtn" style="width:100%;justify-content:center" onclick="exportCSV()">Download CSV</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── Export ─────────────────────────────────────────────────────────────────
+function exportCSV(){
+  if(!allRecs.length){toast('No recommendations to export');return}
+  let csv='Name,Test Type,URL\n';
+  allRecs.forEach(r=>{ csv+=`"${r.name}","${r.test_type}","${r.url}"\n` });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='shl_recommendations.csv'; a.click();
+  toast('CSV downloaded!');
+}
+function copyTable(){
+  if(!allRecs.length){toast('No recommendations to copy');return}
+  let md='| # | Name | Test Type | URL |\n|---|------|-----------|-----|\n';
+  allRecs.forEach((r,i)=>{ md+=`| ${i+1} | ${r.name} | ${r.test_type} | ${r.url} |\n` });
+  navigator.clipboard.writeText(md).then(()=>toast('Markdown table copied!')).catch(()=>toast('Copy failed'));
+}
+function clearRecs(){
+  allRecs=[]; compareSet=[];
+  document.getElementById('recs-list').innerHTML='<div class="empty" id="empty-recs"><div class="eicon">📊</div><h3>No recommendations yet</h3><p>Start a conversation to get tailored assessment recommendations.</p></div>';
+  const cnt=document.getElementById('rcnt'); cnt.style.display='none';
+  renderCompare();
+  toast('Cleared');
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+// ── Health check ───────────────────────────────────────────────────────────
+fetch(`${API}/health`).catch(()=>{
+  document.querySelector('.sdot').style.cssText='background:#ef4444;animation:none';
+  document.querySelector('[style*="API LIVE"]').style.color='#f87171';
+  document.querySelector('[style*="API LIVE"]').lastChild.textContent='API OFFLINE';
+});
+</script>
+</body>
+</html>
