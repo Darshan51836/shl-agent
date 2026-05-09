@@ -1,12 +1,3 @@
-"""
-STEP 4: Retrieval module — used at runtime by the FastAPI agent
-Loaded once at startup; queried on every /chat call.
-
-Usage:
-    from retriever import CatalogRetriever
-    retriever = CatalogRetriever()                   # loads index + model
-    results = retriever.search("Java developer", k=10)
-"""
 import json
 import numpy as np
 from typing import Optional
